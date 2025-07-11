@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useMessages } from '../utils/messages.context';
+import { useChildProfile } from '../utils/childProfile.context';
 import { useWllama } from '../utils/wllama.context';
 import { Message, Screen } from '../utils/types';
 import { formatChat } from '../utils/utils';
@@ -11,6 +12,7 @@ import { useIntervalWhen } from '../utils/use-interval-when';
 
 export default function ChatScreen() {
   const [input, setInput] = useState('');
+  const { childProfile, hasProfile } = useChildProfile();
   const {
     currentConvId,
     isGenerating,
@@ -33,6 +35,13 @@ export default function ChatScreen() {
 
   const onSubmit = async () => {
     if (isGenerating) return;
+
+    // Check if child profile is complete
+    if (!hasProfile) {
+      alert('Please complete the child profile first to enable personalized assistance.');
+      navigateTo(Screen.PROFILE);
+      return;
+    }
 
     // copy input and create messages
     const currHistory = currConv?.messages ?? [];
@@ -67,9 +76,31 @@ export default function ChatScreen() {
     if (!loadedModel) {
       throw new Error('loadedModel is null');
     }
+
+    // Create system message with child profile context
+    const systemMessage: Message = {
+      id: Date.now() - 1,
+      role: 'system',
+      content: `You are a helpful assistant for parents navigating their child's NDIS plan and functional assessment. 
+
+Child Information:
+- Name: ${childProfile.name}
+- Age: ${childProfile.age}
+- Gender: ${childProfile.gender}
+
+Functional Assessment:
+${childProfile.functionalAssessment}
+
+NDIS Plan:
+${childProfile.ndisPlan}
+
+Please provide helpful, accurate, and personalized advice based on this specific child's assessment and NDIS plan. If asked about something not covered in the provided information, clearly state that you don't have that specific information and suggest consulting with the child's support team or NDIS coordinator.`
+    };
+
     let formattedChat: string;
     try {
       formattedChat = await formatChat(getWllamaInstance(), [
+        systemMessage,
         ...currHistory,
         userMsg,
       ]);
@@ -140,13 +171,48 @@ export default function ChatScreen() {
           />
         )}
 
-        {!loadedModel && <WarnNoModel />}
+        {!loadedModel ? (
+          <WarnNoModel />
+        ) : !hasProfile ? (
+          <WarnNoProfile />
+        ) : null}
 
         <small className="text-center mx-auto opacity-70 pt-2">
           wllama may generate inaccurate information. Use with your own risk.
         </small>
       </div>
     </ScreenWrapper>
+  );
+}
+
+function WarnNoProfile() {
+  const { navigateTo } = useWllama();
+
+  return (
+    <div role="alert" className="alert alert-warning">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-6 w-6 shrink-0 stroke-current"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        />
+      </svg>
+      <span>Child profile is incomplete. Please complete it to enable personalized assistance.</span>
+      <div>
+        <button
+          className="btn btn-sm btn-warning"
+          onClick={() => navigateTo(Screen.PROFILE)}
+        >
+          Complete Profile
+        </button>
+      </div>
+    </div>
   );
 }
 
