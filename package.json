@@ -1,68 +1,37 @@
 {
-  "name": "@wllama/wllama",
-  "version": "2.3.2",
-  "description": "WebAssembly binding for llama.cpp - Enabling on-browser LLM inference",
-  "main": "index.js",
+  "name": "ndis-chat-assistant",
+  "private": true,
+  "version": "0.0.0",
   "type": "module",
-  "directories": {
-    "example": "examples"
-  },
   "scripts": {
-    "serve": "node ./scripts/http_server.js",
-    "serve:mt": "MULTITHREAD=1 node ./scripts/http_server.js",
-    "clean": "rm -rf ./esm && rm -rf ./docs && rm -rf ./wasm",
-    "build:worker": "./scripts/build_worker.sh",
-    "build:glue": "node ./cpp/generate_glue_prototype.js",
-    "build:wasm": "./scripts/build_wasm.sh && npm run build:glue",
-    "build:tsup": "tsup src/index.ts --format cjs,esm --clean",
-    "build:minified": "terser esm/index.js -o esm/index.min.js --compress --mangle --source-map",
-    "build:typedef": "tsc --emitDeclarationOnly --declaration -p tsconfig.build.json",
-    "build": "npm run clean && npm run build:worker && npm run build:tsup && npm run build:minified && npm run build:typedef",
-    "postbuild": "./scripts/post_build.sh && npm run docs",
-    "docs": "typedoc --tsconfig tsconfig.build.json src/index.ts",
-    "upload": "npm run format && npm run build && npm publish --access public",
-    "format": "prettier --write .",
-    "test": "vitest",
-    "test:firefox": "BROWSER=firefox vitest",
-    "test:safari": "BROWSER=safari vitest"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ngxson/wllama.git"
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "@huggingface/jinja": "^0.2.2",
+    "daisyui": "^4.12.10",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
-  "keywords": [
-    "wasm",
-    "webassembly",
-    "llama",
-    "llm",
-    "ai",
-    "rag",
-    "embeddings",
-    "generation"
-  ],
-  "author": "Xuan Son NGUYEN <contact@ngxson.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ngxson/wllama/issues"
-  },
-  "homepage": "https://github.com/ngxson/wllama#readme",
   "devDependencies": {
-    "@vitest/browser": "^2.1.6",
-    "express": "^4.18.3",
-    "mime-types": "^2.1.35",
-    "playwright": "^1.49.0",
-    "prettier": "^3.3.3",
-    "terser": "^5.39.0",
-    "tsup": "^8.4.0",
-    "typedoc": "^0.27.2",
-    "typescript": "^5.4.2",
-    "webdriverio": "^9.4.1"
-  },
-  "prettier": {
-    "trailingComma": "es5",
-    "tabWidth": 2,
-    "semi": true,
-    "singleQuote": true,
-    "bracketSameLine": false
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
+    "@typescript-eslint/parser": "^7.15.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@wllama/wllama": "file:./",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5.2.2",
+    "vite": "^5.3.4"
   }
 }
