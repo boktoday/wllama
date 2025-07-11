@@ -8,6 +8,7 @@ import {
   faQuestionCircle,
   faTrashAlt,
   faBug,
+  faUser,
 } from '@fortawesome/free-solid-svg-icons';
 import { WLLAMA_VERSION } from '../config';
 
@@ -85,6 +86,11 @@ export default function Sidebar({ children }: { children: any }) {
               <li onClick={() => navigateTo(Screen.GUIDE)}>
                 <a className={currScreen === Screen.GUIDE ? 'active' : ''}>
                   <FontAwesomeIcon icon={faQuestionCircle} /> Guide
+                </a>
+              </li>
+              <li onClick={() => navigateTo(Screen.PROFILE)}>
+                <a className={currScreen === Screen.PROFILE ? 'active' : ''}>
+                  <FontAwesomeIcon icon={faUser} /> Child Profile
                 </a>
               </li>
               <li onClick={() => navigateTo(Screen.MODEL)}>

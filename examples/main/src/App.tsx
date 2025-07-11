@@ -2,6 +2,7 @@ import ChatScreen from './components/ChatScreen';
 import GuideScreen from './components/GuideScreen';
 import LogScreen from './components/LogScreen';
 import ModelScreen from './components/ModelScreen';
+import ChildProfileForm from './components/ChildProfileForm';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import { MessagesProvider } from './utils/messages.context';
@@ -34,6 +35,7 @@ function InnerApp() {
           {currScreen === Screen.CHAT && <ChatScreen />}
           {currScreen === Screen.GUIDE && <GuideScreen />}
           {currScreen === Screen.LOG && <LogScreen />}
+          {currScreen === Screen.PROFILE && <ChildProfileForm />}
         </Sidebar>
       </div>
     </div>

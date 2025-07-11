@@ -3,6 +3,7 @@ export enum Screen {
   CHAT,
   MODEL,
   LOG,
+  PROFILE,
 }
 
 export enum ModelState {
