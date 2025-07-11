@@ -1,3 +1,4 @@
+import React from 'react';
 import ChatScreen from './components/ChatScreen';
 import GuideScreen from './components/GuideScreen';
 import LogScreen from './components/LogScreen';
