@@ -103,15 +103,6 @@ export default function Sidebar({ children }: { children: any }) {
                   <FontAwesomeIcon icon={faBug} /> Debug log
                 </a>
               </li>
-              <li>
-                <a
-                  href="https://github.com/ngxson/wllama"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> Github
-                </a>
-              </li>
             </ul>
 
             <div className="text-xs pl-6 pt-2">Version {WLLAMA_VERSION}</div>
