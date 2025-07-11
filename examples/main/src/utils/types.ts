@@ -36,3 +36,11 @@ export interface Conversation {
   id: number;
   messages: Message[];
 }
+
+export interface ChildProfile {
+  name: string;
+  age: number;
+  gender: string;
+  functionalAssessment: string;
+  ndisPlan: string;
+}
