@@ -25,18 +25,6 @@ function App() {
   );
 }
 
-function App() {
-  return (
-    <ChildProfileProvider>
-      <MessagesProvider>
-        <WllamaProvider>
-          <InnerApp />
-        </WllamaProvider>
-      </MessagesProvider>
-    </ChildProfileProvider>
-  );
-}
-
 function InnerApp() {
   const { currScreen } = useWllama();
   const { navigateTo } = useWllama();
