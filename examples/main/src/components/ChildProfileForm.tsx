@@ -105,37 +105,67 @@ export default function ChildProfileForm() {
             </div>
           </div>
 
-          {/* Functional Assessment Field */}
+          {/* General Background Field */}
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-medium">Functional Assessment *</span>
+              <span className="label-text font-medium">General Background</span>
               <span className="label-text-alt">
-                Copy and paste your child's functional assessment report
+                Optional: General information about your child's background, interests, or other relevant details
               </span>
             </label>
             <textarea
               className="textarea textarea-bordered h-32 w-full"
-              placeholder="Paste your child's functional assessment here. This should include details about their current abilities, support needs, and any relevant assessments from healthcare professionals..."
+              placeholder="Optional: Share any general background information about your child, such as their interests, hobbies, school situation, family context, or any other details you think might be helpful..."
+              value={childProfile.generalBackground}
+              onChange={handleInputChange('generalBackground')}
+            />
+          </div>
+
+          {/* Functional Assessment Field */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-medium">Functional Assessment</span>
+              <span className="label-text-alt">
+                Optional: Copy and paste your child's functional assessment report
+              </span>
+            </label>
+            <textarea
+              className="textarea textarea-bordered h-32 w-full"
+              placeholder="Optional: Paste your child's functional assessment here. This should include details about their current abilities, support needs, and any relevant assessments from healthcare professionals..."
               value={childProfile.functionalAssessment}
               onChange={handleInputChange('functionalAssessment')}
-              required
             />
           </div>
 
           {/* NDIS Plan Field */}
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-medium">NDIS Plan *</span>
+              <span className="label-text font-medium">NDIS Plan</span>
               <span className="label-text-alt">
-                Copy and paste your child's current NDIS plan
+                Optional: Copy and paste your child's current NDIS plan
               </span>
             </label>
             <textarea
               className="textarea textarea-bordered h-32 w-full"
-              placeholder="Paste your child's NDIS plan here. This should include their goals, funded supports, budget allocations, and any specific requirements..."
+              placeholder="Optional: Paste your child's NDIS plan here. This should include their goals, funded supports, budget allocations, and any specific requirements..."
               value={childProfile.ndisPlan}
               onChange={handleInputChange('ndisPlan')}
-              required
+            />
+          </div>
+
+          {/* Other Information Field */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-medium">Other Information</span>
+              <span className="label-text-alt">
+                Optional: Any additional information you'd like to share
+              </span>
+            </label>
+            <textarea
+              className="textarea textarea-bordered h-32 w-full"
+              placeholder="Optional: Share any other relevant information, concerns, questions, or details that might help provide better assistance..."
+              value={childProfile.otherInformation}
+              onChange={handleInputChange('otherInformation')}
             />
           </div>
 
@@ -165,8 +195,8 @@ export default function ChildProfileForm() {
         {!hasProfile && (
           <div className="mt-6 p-4 bg-warning/10 border border-warning/20 rounded-lg">
             <p className="text-sm text-warning-content">
-              <strong>Note:</strong> All fields marked with * are required to enable 
-              the chat functionality. Your information is stored locally and never shared.
+              <strong>Note:</strong> Only name, age, and gender are required to enable 
+              the chat functionality. All other fields are optional but help provide better assistance. Your information is stored locally and never shared.
             </p>
           </div>
         )}
