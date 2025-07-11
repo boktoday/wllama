@@ -5,6 +5,7 @@ import ModelScreen from './components/ModelScreen';
 import ChildProfileForm from './components/ChildProfileForm';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
+import Footer from './components/Footer';
 import { MessagesProvider } from './utils/messages.context';
 import { ChildProfileProvider } from './utils/childProfile.context';
 import { Screen } from './utils/types';
@@ -27,9 +28,9 @@ function InnerApp() {
   const { currScreen } = useWllama();
 
   return (
-    <div className="flex flex-col drawer h-screen w-screen overflow-hidden">
+    <div className="flex flex-col drawer min-h-screen w-screen">
       <Navbar />
-      <div className="grow flex flex-row lg:drawer-open h-[calc(100vh-4rem)]">
+      <div className="grow flex flex-row lg:drawer-open min-h-[calc(100vh-8rem)]">
         <Sidebar>
           {currScreen === Screen.MODEL && <ModelScreen />}
           {currScreen === Screen.CHAT && <ChatScreen />}
@@ -38,6 +39,7 @@ function InnerApp() {
           {currScreen === Screen.PROFILE && <ChildProfileForm />}
         </Sidebar>
       </div>
+      <Footer />
     </div>
   );
 }
