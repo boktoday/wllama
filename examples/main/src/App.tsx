@@ -3,6 +3,7 @@ import GuideScreen from './components/GuideScreen';
 import LogScreen from './components/LogScreen';
 import ModelScreen from './components/ModelScreen';
 import ChildProfileForm from './components/ChildProfileForm';
+import LegalPrivacyScreen from './components/LegalPrivacyScreen';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
@@ -24,8 +25,33 @@ function App() {
   );
 }
 
+function App() {
+  return (
+    <ChildProfileProvider>
+      <MessagesProvider>
+        <WllamaProvider>
+          <InnerApp />
+        </WllamaProvider>
+      </MessagesProvider>
+    </ChildProfileProvider>
+  );
+}
+
 function InnerApp() {
   const { currScreen } = useWllama();
+  const { navigateTo } = useWllama();
+
+  // Handle footer navigation
+  React.useEffect(() => {
+    const handleNavigateToLegal = () => {
+      navigateTo(Screen.LEGAL);
+    };
+
+    window.addEventListener('navigate-to-legal', handleNavigateToLegal);
+    return () => {
+      window.removeEventListener('navigate-to-legal', handleNavigateToLegal);
+    };
+  }, [navigateTo]);
 
   return (
     <div className="flex flex-col drawer min-h-screen w-screen">
@@ -37,6 +63,7 @@ function InnerApp() {
           {currScreen === Screen.GUIDE && <GuideScreen />}
           {currScreen === Screen.LOG && <LogScreen />}
           {currScreen === Screen.PROFILE && <ChildProfileForm />}
+          {currScreen === Screen.LEGAL && <LegalPrivacyScreen />}
         </Sidebar>
       </div>
       <Footer />

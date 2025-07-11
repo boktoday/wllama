@@ -6,7 +6,15 @@ export default function Footer() {
           Distincto Apps ©2025. ABN: 21 672 202 612. Made in Melbourne and Penang.
         </div>
         <div>
-          <a href="#" className="hover:text-base-content transition-colors">
+          <a 
+            href="#" 
+            className="hover:text-base-content transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              // This will be handled by the parent component
+              window.dispatchEvent(new CustomEvent('navigate-to-legal'));
+            }}
+          >
             Legal & Privacy
           </a>
         </div>

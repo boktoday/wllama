@@ -4,6 +4,7 @@ export enum Screen {
   MODEL,
   LOG,
   PROFILE,
+  LEGAL,
 }
 
 export enum ModelState {
