@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { ChildProfile } from './types';
 import { WllamaStorage } from './utils';
 
@@ -13,10 +13,8 @@ const defaultProfile: ChildProfile = {
   name: '',
   age: 0,
   gender: '',
-  generalBackground: '',
   functionalAssessment: '',
   ndisPlan: '',
-  otherInformation: '',
 };
 
 const ChildProfileContext = createContext<ChildProfileContextValue>({} as any);
@@ -40,7 +38,9 @@ export const ChildProfileProvider = ({ children }: any) => {
   const hasProfile = !!(
     childProfile.name &&
     childProfile.age > 0 &&
-    childProfile.gender
+    childProfile.gender &&
+    childProfile.functionalAssessment &&
+    childProfile.ndisPlan
   );
 
   return (

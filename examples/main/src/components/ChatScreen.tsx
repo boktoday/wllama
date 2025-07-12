@@ -88,19 +88,13 @@ Child Information:
 - Age: ${childProfile.age}
 - Gender: ${childProfile.gender}
 
-${childProfile.generalBackground ? `General Background:
-${childProfile.generalBackground}
-
-` : ''}${childProfile.functionalAssessment ? `Functional Assessment:
+Functional Assessment:
 ${childProfile.functionalAssessment}
 
-` : ''}${childProfile.ndisPlan ? `NDIS Plan:
+NDIS Plan:
 ${childProfile.ndisPlan}
 
-` : ''}${childProfile.otherInformation ? `Other Information:
-${childProfile.otherInformation}
-
-` : ''}Please provide helpful, accurate, and personalized advice based on this specific child's assessment and NDIS plan. If asked about something not covered in the provided information, clearly state that you don't have that specific information and suggest consulting with the child's support team or NDIS coordinator.`
+Please provide helpful, accurate, and personalized advice based on this specific child's assessment and NDIS plan. If asked about something not covered in the provided information, clearly state that you don't have that specific information and suggest consulting with the child's support team or NDIS coordinator.`
     };
 
     let formattedChat: string;

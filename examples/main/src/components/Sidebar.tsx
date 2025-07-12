@@ -4,6 +4,7 @@ import { useWllama } from '../utils/wllama.context';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBrain,
+  faArrowUpRightFromSquare,
   faQuestionCircle,
   faTrashAlt,
   faBug,
