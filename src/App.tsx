@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faPlus, 
-  faQuestionCircle, 
-  faBrain, 
-  faBug, 
+import {
+  faPlus,
+  faQuestionCircle,
+  faBrain,
+  faBug,
   faArrowUpRightFromSquare,
   faTrashAlt
 } from '@fortawesome/free-solid-svg-icons';
@@ -39,6 +39,7 @@ function App() {
   const [activeScreen, setActiveScreen] = useState('model');
   const [conversations, setConversations] = useState<string[]>([]);
   const [currentConversation, setCurrentConversation] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [inferenceParams, setInferenceParams] = useState<InferenceParams>({
     nThreads: -1,
     nContext: 4096,
@@ -82,13 +83,41 @@ function App() {
     });
   };
 
-  const handleDownload = (index: number) => {
+  const handleDownload = async (index: number) => {
+    if (isDownloading) return;
+    
+    setIsDownloading(true);
+    
+    // Simulate download progress
     const updatedModels = [...models];
     updatedModels[index] = {
       ...updatedModels[index],
-      state: ModelState.READY
+      state: ModelState.DOWNLOADING
     };
     setModels(updatedModels);
+    
+    // Simulate download progress
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 0.05;
+      const newModels = [...updatedModels];
+      newModels[index] = {
+        ...newModels[index],
+        downloadPercent: Math.min(progress, 1)
+      };
+      setModels(newModels);
+      
+      if (progress >= 1) {
+        clearInterval(interval);
+        newModels[index] = {
+          ...newModels[index],
+          state: ModelState.READY,
+          downloadPercent: 1
+        };
+        setModels(newModels);
+        setIsDownloading(false);
+      }
+    }, 200);
   };
 
   const toHumanReadableSize = (bytes: number): string => {
@@ -184,7 +213,7 @@ function App() {
           <div className="p-8">
             <h1 className="text-2xl mb-4">Inference parameters</h1>
             
-            <div className="space-y-2 mb-4">
+            <div className="space-y-4 mb-4">
               <div className="bg-gray-800 p-4 rounded">
                 <label className="block mb-1"># threads</label>
                 <input 
@@ -230,52 +259,75 @@ function App() {
             
             <div className="mb-8">
               <button 
-                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded mr-2"
+                className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded mr-2"
                 onClick={resetParams}
               >
                 Reset params
               </button>
               
-              <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+              <button className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded">
                 Clear cache
               </button>
             </div>
             
             <h1 className="text-2xl mb-4">
               Custom models
-              <button className="ml-4 bg-blue-600 hover:bg-blue-700 px-4 py-1 rounded text-sm">
+              <button className="ml-4 bg-indigo-600 hover:bg-indigo-700 px-4 py-1 rounded text-sm text-white">
                 + Add GGUF
               </button>
             </h1>
             
             <h1 className="text-2xl mt-8 mb-4">Recommended models</h1>
             
-            {models.map((model, index) => (
+            {models.map((m, index) => (
               <div key={index} className="bg-gray-800 p-4 rounded mb-4">
                 <div className="flex justify-between">
                   <div>
-                    <div className="font-bold">{model.hfPath}</div>
+                    <div className="font-bold">{m.hfPath}</div>
                     <div className="text-sm text-gray-400">
-                      HF repo: {model.hfModel}
+                      HF repo: {m.hfModel}
                       <br />
-                      Size: {toHumanReadableSize(model.size)}
+                      Size: {toHumanReadableSize(m.size)}
                     </div>
+                    
+                    {m.state === ModelState.DOWNLOADING && (
+                      <div className="mt-2">
+                        <div className="w-full bg-gray-700 rounded-full h-2.5">
+                          <div 
+                            className="bg-indigo-600 h-2.5 rounded-full" 
+                            style={{ width: `${m.downloadPercent * 100}%` }}
+                          ></div>
+                        </div>
+                        <div className="text-xs mt-1">Downloaded: {Math.round(m.downloadPercent * 100)}%</div>
+                      </div>
+                    )}
                   </div>
                   
                   <div>
-                    {model.state === ModelState.NOT_DOWNLOADED && (
+                    {m.state === ModelState.NOT_DOWNLOADED && (
                       <button 
-                        className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded"
+                        className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded text-white"
                         onClick={() => handleDownload(index)}
+                        disabled={isDownloading}
                       >
                         Download
                       </button>
                     )}
                     
-                    {model.state === ModelState.READY && (
-                      <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded mr-2">
-                        Load model
-                      </button>
+                    {m.state === ModelState.DOWNLOADING && (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      </div>
+                    )}
+                    
+                    {m.state === ModelState.READY && (
+                      <>
+                        <button 
+                          className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded text-white mr-2"
+                        >
+                          Load model
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
