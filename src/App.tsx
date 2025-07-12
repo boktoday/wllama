@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Wllama } from '@wllama/wllama';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faPlus,
@@ -35,11 +36,23 @@ interface InferenceParams {
   temperature: number;
 }
 
+// Import wllama configuration
+const WLLAMA_CONFIG_PATHS = {
+  'single-thread/wllama.wasm': 'https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.2/src/single-thread/wllama.wasm',
+  'multi-thread/wllama.wasm': 'https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.2/src/multi-thread/wllama.wasm',
+};
+
 function App() {
   const [activeScreen, setActiveScreen] = useState('model');
   const [conversations, setConversations] = useState<string[]>([]);
   const [currentConversation, setCurrentConversation] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadedModel, setLoadedModel] = useState<Model | null>(null);
+  const [wllamaInstance, setWllamaInstance] = useState<Wllama | null>(null);
+  const [chatInput, setChatInput] = useState('');
+  const [chatOutput, setChatOutput] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
   const [inferenceParams, setInferenceParams] = useState<InferenceParams>({
     nThreads: -1,
     nContext: 4096,
@@ -118,6 +131,113 @@ function App() {
         setIsDownloading(false);
       }
     }, 200);
+  };
+
+  const handleLoadModel = async (index: number) => {
+    if (isLoading || loadedModel) return;
+    
+    setIsLoading(true);
+    
+    // Update model state
+    const updatedModels = [...models];
+    updatedModels[index] = {
+      ...updatedModels[index],
+      state: ModelState.LOADING
+    };
+    setModels(updatedModels);
+    
+    try {
+      // Initialize wllama
+      const wllama = new Wllama(WLLAMA_CONFIG_PATHS);
+      
+      // Simulate loading the model (in a real app, this would actually load the model)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Update state
+      setWllamaInstance(wllama);
+      setLoadedModel(updatedModels[index]);
+      
+      updatedModels[index] = {
+        ...updatedModels[index],
+        state: ModelState.LOADED
+      };
+      setModels(updatedModels);
+      
+      // Switch to chat screen
+      setActiveScreen('chat');
+    } catch (error) {
+      console.error('Error loading model:', error);
+      
+      // Reset model state on error
+      updatedModels[index] = {
+        ...updatedModels[index],
+        state: ModelState.READY
+      };
+      setModels(updatedModels);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUnloadModel = async () => {
+    if (!loadedModel) return;
+    
+    // Update model state
+    const updatedModels = [...models];
+    const modelIndex = updatedModels.findIndex(m => m.url === loadedModel.url);
+    
+    if (modelIndex !== -1) {
+      updatedModels[modelIndex] = {
+        ...updatedModels[modelIndex],
+        state: ModelState.READY
+      };
+      setModels(updatedModels);
+    }
+    
+    // Clean up wllama instance
+    if (wllamaInstance) {
+      try {
+        await wllamaInstance.exit();
+      } catch (error) {
+        console.error('Error unloading model:', error);
+      }
+    }
+    
+    setWllamaInstance(null);
+    setLoadedModel(null);
+  };
+
+  const handleSendMessage = async () => {
+    if (!wllamaInstance || !chatInput.trim() || isGenerating) return;
+    
+    setIsGenerating(true);
+    
+    // Create a new conversation if needed
+    if (!currentConversation) {
+      const newConv = chatInput.substring(0, 30) + (chatInput.length > 30 ? '...' : '');
+      setConversations([newConv, ...conversations]);
+      setCurrentConversation(newConv);
+    }
+    
+    // Store the user input
+    const userInput = chatInput;
+    setChatInput('');
+    
+    // In a real app, this would use the actual wllama API
+    // Here we're just simulating a response
+    setChatOutput('');
+    
+    // Simulate typing effect
+    const response = "I'm a simulated AI assistant. This is a demo of the wllama interface. In a real implementation, this would use the actual wllama library to generate a response based on your input.";
+    let currentOutput = '';
+    
+    for (let i = 0; i < response.length; i++) {
+      currentOutput += response[i];
+      setChatOutput(currentOutput);
+      await new Promise(resolve => setTimeout(resolve, 30));
+    }
+    
+    setIsGenerating(false);
   };
 
   const toHumanReadableSize = (bytes: number): string => {
@@ -211,6 +331,18 @@ function App() {
       <div className="flex-grow overflow-auto">
         {activeScreen === 'model' && (
           <div className="p-8">
+            {loadedModel && (
+              <div className="bg-green-800 text-white p-4 rounded mb-4">
+                Model loaded: {loadedModel.hfPath}
+                <button 
+                  className="ml-4 bg-red-600 hover:bg-red-700 px-4 py-1 rounded text-sm"
+                  onClick={handleUnloadModel}
+                >
+                  Unload
+                </button>
+              </div>
+            )}
+            
             <h1 className="text-2xl mb-4">Inference parameters</h1>
             
             <div className="space-y-4 mb-4">
@@ -323,16 +455,101 @@ function App() {
                     {m.state === ModelState.READY && (
                       <>
                         <button 
-                          className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded text-white mr-2"
+                          className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded text-white mr-2" 
+                          onClick={() => handleLoadModel(index)}
+                          disabled={isLoading || !!loadedModel}
                         >
                           Load model
                         </button>
                       </>
                     )}
+                    
+                    {m.state === ModelState.LOADING && (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      </div>
+                    )}
+                    
+                    {m.state === ModelState.LOADED && (
+                      <div className="text-green-400 font-bold">
+                        Loaded
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        
+        {activeScreen === 'chat' && (
+          <div className="p-8 h-full flex flex-col">
+            <h1 className="text-2xl mb-4">Chat</h1>
+            
+            {!loadedModel ? (
+              <div className="bg-yellow-800 text-white p-4 rounded mb-4">
+                Please load a model first to start chatting.
+              </div>
+            ) : (
+              <>
+                <div className="flex-grow bg-gray-800 p-4 rounded mb-4 overflow-auto">
+                  {currentConversation && (
+                    <div>
+                      <div className="mb-4">
+                        <div className="font-bold">You:</div>
+                        <div className="pl-4">{chatInput || "(Your message will appear here)"}</div>
+                      </div>
+                      
+                      {chatOutput && (
+                        <div>
+                          <div className="font-bold">AI:</div>
+                          <div className="pl-4">{chatOutput}</div>
+                        </div>
+                      )}
+                      
+                      {isGenerating && !chatOutput && (
+                        <div>
+                          <div className="font-bold">AI:</div>
+                          <div className="pl-4">
+                            <div className="animate-pulse">Thinking...</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {!currentConversation && (
+                    <div className="text-center text-gray-400 mt-20">
+                      Start a new conversation by typing a message below.
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex">
+                  <input
+                    type="text"
+                    className="flex-grow bg-gray-700 p-2 rounded-l"
+                    placeholder="Type your message here..."
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
+                    disabled={isGenerating}
+                  />
+                  <button
+                    className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-r"
+                    onClick={handleSendMessage}
+                    disabled={isGenerating || !chatInput.trim()}
+                  >
+                    Send
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
