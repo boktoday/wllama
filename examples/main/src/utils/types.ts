@@ -43,6 +43,8 @@ export interface ChildProfile {
   name: string;
   age: number;
   gender: string;
+  generalBackground: string;
   functionalAssessment: string;
   ndisPlan: string;
+  otherInformation: string;
 }
